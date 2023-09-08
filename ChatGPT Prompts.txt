@@ -1,0 +1,5 @@
+Imagine we are playing blackjack.  I will ask you to hit or hold.  Respond with only 'hit' or 'hold' without explaining your choice.
+I will continue to give you information as the game progresses until you lose or win.
+The dealer's shown card is a 7 of hearts.  Your hand is 3 hearts, 7 spades.  Your total is 10.  Will you hit or hold?
+
+The dealer hands you a card.  Your hand is now a 3 spades, 9 hearts, 4 spades.  Your total is 16.  Will you hit or hold?
