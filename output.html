@@ -1,0 +1,154 @@
+ `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tic Tac Toe</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #F2F2F2;
+      }
+      
+      h1 {
+        color: #333333;
+      }
+      
+      .board {
+        display: inline-block;
+        margin-top: 50px;
+      }
+      
+      .board .row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      
+      .board .row .cell {
+        width: 50px;
+        height: 50px;
+        background-color: #FFFFFF;
+        border: 1px solid #333333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      
+      .board .row .cell:last-child {
+        margin-right: 0;
+      }
+      
+      .player-x {
+        color: #FF0000;
+      }
+      
+      .player-o {
+        color: #0000FF;
+      }
+      
+      .winner {
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      
+      .reset {
+        margin-top: 20px;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const board = document.querySelector('.board');
+        let currentPlayer = 'X';
+        let winner = null;
+        let cells = [];
+        
+        // Create the cells
+        for (let i = 0; i < 3; i++) {
+          let row = document.createElement('div');
+          row.classList.add('row');
+          
+          for (let j = 0; j < 3; j++) {
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
+            
+            cell.addEventListener('click', () => {
+              if (!cell.textContent && !winner) {
+                cell.textContent = currentPlayer;
+                cell.classList.add('player-' + currentPlayer.toLowerCase());
+                
+                checkWinner();
+                
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+              }
+            });
+            
+            row.appendChild(cell);
+            cells.push(cell);
+          }
+          
+          board.appendChild(row);
+        }
+        
+        // Check for a winner
+        function checkWinner() {
+          const winningCombinations = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+          ];
+          
+          for (let combination of winningCombinations) {
+            if (cells[combination[0]].textContent === cells[combination[1]].textContent && cells[combination[1]].textContent === cells[combination[2]].textContent && cells[combination[0]].textContent) {
+              winner = currentPlayer;
+              break;
+            }
+          }
+          
+          if (winner) {
+            let winnerElement = document.createElement('div');
+            winnerElement.classList.add('winner');
+            winnerElement.textContent = 'Player ' + winner + ' wins!';
+            board.appendChild(winnerElement);
+          } else if (cells.every(cell => cell.textContent)) {
+            let winnerElement = document.createElement('div');
+            winnerElement.classList.add('winner');
+            winnerElement.textContent = 'It\'s a tie!';
+            board.appendChild(winnerElement);
+          }
+        }
+        
+        // Reset the game
+        const resetButton = document.createElement('button');
+        resetButton.classList.add('reset');
+        resetButton.textContent = 'Reset';
+        resetButton.addEventListener('click', () => {
+          currentPlayer = 'X';
+          winner = null;
+          
+          for (let cell of cells) {
+            cell.textContent = '';
+            cell.classList.remove('player-x', 'player-o');
+          }
+          
+          let winnerElement = board.querySelector('.winner');
+          if (winnerElement) {
+            winnerElement.remove();
+          }
+        });
+        
+        board.appendChild(resetButton);
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Tic Tac Toe</h1>
+    <div class="board"></div>
+  </body>
+</html>`

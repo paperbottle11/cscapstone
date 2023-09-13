@@ -1,22 +1,40 @@
 import openai
-import config
+from pydantic import BaseModel
 
-openai.api_key = config.api_key
+with open("config.txt", "r") as f:
+    api_key = f.read()
+    openai.api_key = api_key
 
-# response = openai.Completion.create(
-#   model="gpt-3.5-turbo",
-#   prompt="Who won the world series in 2020?",
-#   temperature=0.6
-# )
+class HTMLAIResponse(BaseModel):
+    code: str
+
+userRequest = input("What do you want to make: ")
 
 response = openai.ChatCompletion.create(
-  model="gpt-3.5-turbo",
-  messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Who won the world series in 2020?"},
-        {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-        {"role": "user", "content": "Where was it played?"}
-    ]
+    model="gpt-3.5-turbo-0613",
+    messages=[
+        {"role": "system", "content": "You are a machine that generates websites with full HTML, CSS, and JavaScript in one file."},
+        {"role": "user", "content": """You are a machine that generates a website based on the requests of a user.
+                                         You will be given their request, and your job is to generate the full HTML
+                                         file of a website that fits tzheir request.  You can use CSS and JavaScript to
+                                         make the website look good and add functionality if needed.  You can also use any HTML
+                                         tags you want and use CSS to make the website's appearance match the theme of the request.
+                                         Double check your code to make sure it works right and correct any mistakes.
+                                         Their request is: """ + userRequest}
+    ],
+    functions=[
+        {
+          "name": "create_website",
+          "description": "Create a website based on the user's request",
+          "parameters": HTMLAIResponse.model_json_schema()
+        }
+    ],
+    function_call={"name": "create_website"}
 )
 
-print(response['choices'][0]['message']['content'])
+output = response.choices[0]["message"]["function_call"]["arguments"]
+print(output)
+
+with open("output.html", "w") as f:
+    f.write(output[11:-2])
+    f.close()
