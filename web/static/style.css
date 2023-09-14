@@ -1,0 +1,97 @@
+html {
+    background-image: url("/static/starry-night-sky.jpg");
+    color: white;
+    font-family: "Titillium Web", sans-serif;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.anim-typewriter-h1{
+    text-align: center;
+    width: 12em;
+    animation: typewriter-h1 3s steps(50) 0s 1 normal both,
+               blinkTextCursor 500ms steps(44) infinite normal;
+}
+.anim-typewriter-p{
+    text-align: center;
+    width: 10em;
+    font-size: 20pt;
+    animation: typewriter-p 2s steps(40) 3s 1 normal both,
+               blinkTextCursor 500ms steps(44) infinite normal;
+}
+.anim-typewriter-input{
+    text-align: center;
+    width: 10em;
+    animation: typewriter-input 2s steps(40) 5s 1 normal both,
+               blinkTextCursor 500ms steps(44) infinite normal;
+}
+@keyframes typewriter-h1{
+    from{width: 0;}
+    to{width: 12em;}
+}
+@keyframes typewriter-p{
+    from{width: 0;}
+    to{width: 10em;}
+}
+@keyframes typewriter-input{
+    from{width: 0;}
+    to{width: 10em;}
+}
+@keyframes blinkTextCursor{
+    from{border-right-color: rgb(255, 255, 255);}
+    to{border-right-color: transparent;}
+}
+.type {
+    background-color: black;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0;
+}
+.input-box {
+    width: 100%;
+    height: auto;
+    font-size: 30pt;
+    border-radius: 10px;
+    border: 1px solid black;
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input-box p {
+    margin-top: 20px;
+}
+.input-box form {
+    display: flex;
+    width: 25%;
+    font-size: 24pt;
+    border-radius: 10px;
+    border: 1px solid black;
+    outline: rgb(0, 0, 0) 3px solid;
+    animation: input-fade-in 2s steps(40) 7s 1 normal both;
+    flex-direction: column;
+    align-items: center;
+}
+.input-box input {
+    width: 25%;
+    font-size: 24pt;
+    border-radius: 10px;
+    border: 1px solid black;
+    outline: rgb(0, 0, 0) 3px solid;
+    animation: input-fade-in 2s steps(40) 7s 1 normal both;
+}
+@keyframes input-fade-in {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+.attr-bg {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    background-color: black;
+    padding: 10px;
+}
