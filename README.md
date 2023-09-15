@@ -1,7 +1,14 @@
 # Computer Science Capstone 2023-2024
 
-<h1>Project</h1>
-AI that can read the instructions to a game and be able to play it
+<h2>Project</h2>
+Idea 1: LLM that can read the instructions to a game and be able to play it <br>
+Idea 2: Website that can generate pages based on user requests (AI-powered dynamically-generated website)
+
+<h2>Structure</h2>
+The main folder is called web, which holds the python flask app with the AI webpage generation.  More research is being done on a LLM that can play games, so there are no files pertaining to that except for "ChatGPT Prompts.txt".
+
+<h2>Progress</h2>
+Right now, there is a semi-working flask app that will take a request and generate a webpage from it using requests to the OpenAI api.  Sometimes it will output a blank page with just two quotation marks, which is an issue that is being investigated.  As for the LLM that can play games, more experiments must be done to determine the ability of GPT-3.5 and GPT-4 to play a full game of tic tac toe, such as presenting game state information in different ways to achieve a better result.
 
 <h2>Notes</h2>
 
