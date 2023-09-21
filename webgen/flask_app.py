@@ -19,14 +19,7 @@ def generate(userRequest):
         model="gpt-3.5-turbo-0613",
         messages=[
             {"role": "system", "content": "You are a machine that generates websites with full HTML, CSS, and JavaScript in one file."},
-            {"role": "user", "content": """You are a machine that generates a website based on the requests of a user.
-                                            You will be given their request, and your job is to generate the full HTML
-                                            file of a website that fits their request.  You can use CSS and JavaScript to
-                                            make the website look good and add functionality if needed.  You can also use any HTML
-                                            tags you want and use CSS to make the website's appearance match the theme of the request.
-                                            Double check your code to make sure it works right and correct any mistakes. Finally, somewhere in
-                                            you code, include a button that links to /origin .
-                                            Their request is: """ + userRequest}
+            {"role": "user", "content": "You will be given a user's request, and your job is to generate the full HTML file of a website that fits their request.  Use CSS and JavaScript to make the website look good and add functionality if needed.  Use any HTML tags you need and use CSS to make the website's appearance match the theme of the request. Make sure your code works and correct any mistakes. Finally, somewhere in your code, include a button that links to /origin . Their request is: " + userRequest}
         ],
         functions=[
             {
