@@ -44,5 +44,12 @@ def home():
 def gen_assets(filename):
     return send_from_directory("gen", filename)
 
+@app.route('/lastgen')
+def lastgen():
+    try:
+        return send_from_directory("gen", "gen.html")
+    except:
+        return redirect('/origin')
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80)
