@@ -22,7 +22,7 @@ def home():
                 return redirect('/origin')
         else: 
             print("generating")
-            html, css, js = generate(lastQuery)
+            html, css, js = generate(request.args["q"])
             insertIdx = html.find("<body>")
             html = html[:insertIdx+6] + "\n<a id=\"home\" href=\"/origin\">Home</a>\n" + html[insertIdx+6:]
             css = "#home {\ndisplay: block;\npadding: 10px 20px;\ntext-decoration: none;\nborder-radius: 5px;\nborder-style: solid;\nborder-width: 1px;\nfont-weight: bold;\nbackground-color: #ddd;\ncolor: black;\nfloat: left;\n}\n#home:hover {\nbackground-color: #555;\ncolor: white;\n}\n" + css
