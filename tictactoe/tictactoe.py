@@ -2,16 +2,20 @@ import openai
 from pydantic import BaseModel
 import json
 
+# Load API Key
 with open("../config.txt", "r") as f:
     api_key = f.read().strip()
     openai.api_key = api_key
 
+# GPT Function Structure
 class TicTacToeResponse(BaseModel):
     row: int
     column: int
 
+# Generate Board
 board = [[" " for i in range(3)] for i in range(3)]
 
+# Generates move using GPT-4
 def generateMove(board):
     apiResponse = openai.ChatCompletion.create(
         model="gpt-4-0613",
@@ -29,11 +33,11 @@ def generateMove(board):
         function_call={"name": "generate_move"}
     )
 
-
     output = apiResponse.choices[0]["message"]["function_call"]["arguments"]
     move = json.loads(output)
     return move
 
+# Check if the game is over and return the winner
 def checkWin(board):
     for i in range(3):
         if board[i][0] == board[i][1] == board[i][2] and board[i][0] != " ":
@@ -56,6 +60,14 @@ def printBoard(board):
     for i in range(len(board)):
         print(board[i])
 
+def place(board, row, col, player):
+    if board[int(row)][int(col)] == " ":
+        board[int(row)][int(col)] = player
+        return True
+    else:
+        return False
+
+# Game Loop
 while not checkTie(board) and checkWin(board) == " ":
     printBoard(board)
     player = input("Enter row and col (1-3): ")
@@ -67,12 +79,20 @@ while not checkTie(board) and checkWin(board) == " ":
         row = int(player[0]) - 1
         col = int(player[1]) - 1
     
-    board[row][col] = "X"
+    place(board, row, col, "X")
+
     if checkTie(board) == True or checkWin(board) != " ": break
     printBoard(board)
+
     move = generateMove(board)
     print("Opp Move: " + str(move))
-    board[int(move["row"])][int(move["column"])] = "O"
+    placed = place(board, move["row"], move["column"], "O")
+
+    # If the generated move is invalid, keep generating moves until a valid one is created
+    while not placed:
+        move = generateMove(board)
+        print("Opp Move: " + str(move))
+        placed = place(board, move["row"], move["column"], "O")
 
 printBoard(board)
 print("Winner: " + checkWin(board))

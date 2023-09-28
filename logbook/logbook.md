@@ -12,3 +12,10 @@ Then, I restructured the GPT function from just a general "code" argument that w
 
 <h4>TicTacToe:</h4>
 No changes.
+
+<h3>9/28/23</h3>
+<h4>WebGen:</h4>
+I added comments to the flask app code, and I also created a button that links to the last generated website.  This allows the user to see their last generation without having to type in the exact same query again.  I also fixed the fonts on the input elements and made other styling changes.
+
+<h4>TicTacToe:</h4>
+I added comments to the code and fixed the bug where the opponent would place the "O" over an already-filled space.  I solved it by checking if the space is already filled, then generating another move if it is.
