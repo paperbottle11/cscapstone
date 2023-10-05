@@ -32,14 +32,14 @@ def home():
             css = "#home {\ndisplay: block;\npadding: 10px 20px;\ntext-decoration: none;\nborder-radius: 5px;\nborder-style: solid;\nborder-width: 1px;\nfont-weight: bold;\nbackground-color: #ddd;\ncolor: black;\nfloat: left;\n}\n#home:hover {\nbackground-color: #555;\ncolor: white;\n}\n" + css
             
             # Writes the generated site to the gen folder
-            with open("gen/gen.html", "w") as f:
-                f.write(html)
+            with open("gen/gen.html", "wb") as f:
+                f.write(html.encode())
                 f.close()
-            with open("gen/gen.css", "w") as f:
-                f.write(css)
+            with open("gen/gen.css", "wb") as f:
+                f.write(css.encode())
                 f.close()
-            with open("gen/gen.js", "w") as f:
-                f.write(js)
+            with open("gen/gen.js", "wb") as f:
+                f.write(js.encode())
                 f.close()
             
             # Save the current query as the last query

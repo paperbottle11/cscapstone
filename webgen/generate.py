@@ -17,7 +17,7 @@ def generate(userRequest):
         model="gpt-3.5-turbo-0613",
         messages=[
             {"role": "system", "content": "You are a machine that generates a website with HTML, CSS, and JavaScript."},
-            {"role": "user", "content": "You will be given a request, and your job is to generate the HTML, CSS, and JavaScript files of a website that fits their request.  Create CSS and JavaScript code to make the website look good and add functionality if needed.  Use any HTML tags you need and use the CSS code to make the website's appearance match the theme of the request. Make sure your code works and correct any mistakes.  In the HTML code, the href of the stylesheet is \"/gen/gen.css\" and the src of the javascript file is \"/gen/gen.js\".   The request is: " + userRequest}
+            {"role": "user", "content": "You will be given a request, generate HTML, CSS, and JavaScript code for a website that fits the request.  Use any HTML tags you need, and use CSS to make the website look good. Make sure the code works and correct any mistakes.  In the HTML code, the href of the stylesheet is \"/gen/gen.css\" and the src of the javascript file is \"/gen/gen.js\".  Create the full java script needed for the request. If the request is a game, make the full javascript for the game.   Create the full CSS code needed to make it look good.  The request is: " + userRequest}
         ],
         functions=[
             {

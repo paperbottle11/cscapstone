@@ -19,3 +19,10 @@ I added comments to the flask app code, and I also created a button that links t
 
 <h4>TicTacToe:</h4>
 I added comments to the code and fixed the bug where the opponent would place the "O" over an already-filled space.  I solved it by checking if the space is already filled, then generating another move if it is.
+
+<h3>10/4/23</h3>
+<h4>WebGen:</h4>
+I played around with using multiple responses to build up the website instead generating it all in one response.  However, this proved to create formatting and encoding issues.  Currently, the method of generating the website all at once is the best working, but the prompt has been modified.  The modifications, which primarily shortended it, led to poorer quality websites.  I may have to revert to past prompt.
+
+<h4>TicTacToe:</h4>
+This project has been terminated.
