@@ -1,0 +1,16 @@
+#home {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    font-weight: bold;
+    background-color: #ddd;
+    color: black;
+    float: left;
+}
+#home:hover {
+    background-color: #555;
+    color: white;
+}
