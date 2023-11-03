@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, redirect, request
+from flask import Flask, send_from_directory, redirect, request, render_template
 from pathlib import Path
 from base64 import b64decode
 import cv2
@@ -48,7 +48,7 @@ def generate(userRequest):
         model="gpt-3.5-turbo-0613",
         messages=[
             {"role": "system", "content": "You are a machine that generates a website with HTML."},
-            {"role": "user", "content": f"The request is: {userRequest}. Generate the HTML code with all of the content that would be in the request. Be informative. The href of the stylesheet is \"/generated/genstyle.css\". Create a list with the names of each image file that is used. Create a corresponding list with detailed captions for each image name. Position these images in the website using img tags with where they logically make sense. The folder where the images are located is called \"images\". The output must be valid json text."}
+            {"role": "user", "content": f"The request is: {userRequest}. Create HTML code with all of the content in English that would be in the request. The output must be valid json text. Be informative. Use three images. In the backend, make corresponding lists of image file names and of detailed descriptions for each image name. Position these images in the website where they logically make sense. The folder where the images are located is called \"images\". Use bootstrap CSS classes to style the html. Do not link a bootstrap stylesheet."}
         ],
         functions=[
             {
@@ -85,23 +85,26 @@ def home():
     if request.method == 'GET' and "q" in request.args:
         if request.args["q"] == "": return redirect('/home')
         elif request.args["q"] == lastQuery: 
-            # Returns the last generated site if the query is the same as the last one
-            print("serving lastQuery")
-            try:
-                return send_from_directory(app.static_folder, "generated/gen.html")
-            except:
-                return redirect('/home')
+            stylesheet = "journal.css"
+            if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
+            return redirect(f"/lastgen?sheet={stylesheet}")
         else: 
             # Generates a new website if the query is different from the last one
             print("generating")
             html, image_names, image_prompts = generate(request.args["q"])
+
+            insertIdx = html.find("<head>")
+            element = "\n<link rel='stylesheet' href='css/{{stylesheet}}'>"
+            html = html[:insertIdx+6] + element + html[insertIdx+6:]
+
+            html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='/generated/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
             
             # Inserts a home button into the generated site with its styling
             insertIdx = html.find("<body>")
-            html = html[:insertIdx+6] + "\n<a id=\"home\" href=\"/home\">Home</a>\n" + html[insertIdx+6:]
+            html = html[:insertIdx+6] + "\n<a class='button' href='/home'>Home</a>\n<div class='floating-menu'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a>\n</div>\n" + html[insertIdx+6:]
             
             # Writes the generated site to the generated folder
-            with open("static/generated/gen.html", "wb") as f:
+            with open("templates/gen.html", "wb") as f:
                 f.write(html.encode())
                 f.close()
             
@@ -109,7 +112,7 @@ def home():
             print(image_prompts)
             # Generates images for each image prompt
             for name, prompt in zip(image_names, image_prompts):
-                img = generateImage(prompt, debug=True)
+                img = generateImage(prompt, debug=False)  # debug=True to skip image generation
                 with open(f"static/images/{name}", "wb") as f:
                     f.write(img)
                     f.close()
@@ -117,23 +120,29 @@ def home():
             # Save the current query as the last query
             lastQuery = request.args["q"]
             print("serving generated site")
-            return send_from_directory(app.static_folder, "generated/gen.html")
+            
+            stylesheet = "journal.css"
+            if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
+            return redirect(f"/lastgen?sheet={stylesheet}")
     return send_from_directory(app.static_folder, path="index.html")
 
 @app.route('/generated/<path:filename>')
 def web_gen_assets(filename):
     return send_from_directory("static/generated", filename)
 
+@app.route('/css/<path:filename>')
+def css_assets(filename):
+    return send_from_directory("static/css", filename)
+
 @app.route('/images/<path:filename>')
 def img_gen_assets(filename):
     return send_from_directory("static/images", filename)
 
-@app.route('/lastgen')
+@app.route('/lastgen', methods=['GET'])
 def lastgen():
-    try:
-        return send_from_directory(app.static_folder, "generated/gen.html")
-    except:
-        return redirect('/home')
+    stylesheet = "journal.css"
+    if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
+    return render_template("gen.html", stylesheet=stylesheet)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
