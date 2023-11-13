@@ -66,11 +66,6 @@ def generate(userRequest):
     output = json.loads(response.choices[0]["message"]["function_call"]["arguments"].encode())
     return output["html"], output["image_names"], output["image_prompts"]
 
-data_dir = Path.cwd() / "static" / "images"
-data_dir.mkdir(exist_ok=True)
-data_dir = Path.cwd() / "static" / "generated"
-data_dir.mkdir(exist_ok=True)
-
 app = Flask(__name__, static_folder="static")
 
 @app.route('/', methods=['GET'])
@@ -90,12 +85,17 @@ def home():
             if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
             return redirect(f"/lastgen?sheet={stylesheet}")
         else: 
-            # Generates a new website if the query is different from the last one
+            print("Request: " + request.args["q"])
+            print("Image Generation: " + "off" if "imagegen" not in request.args else "on")
             startTime = time.time()
-            print("generating")
+            
+            print("generating website")
             userRequest = request.args["q"]
+            
             startTextTime = time.time()
+            
             html, image_names, image_prompts = generate(userRequest)
+            
             textTimeElapsed = time.time() - startTextTime
             print("text generation time: " + str(textTimeElapsed))
 
@@ -103,9 +103,9 @@ def home():
             element = "\n<link rel='stylesheet' href='css/{{stylesheet}}'>"
             html = html[:insertIdx+6] + element + html[insertIdx+6:]
 
-            html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='/generated/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
+            html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='css/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
             
-            # Inserts a home button into the generated site with its styling
+            # Inserts a home button into the generated site
             insertIdx = html.find("<body>")
             html = html[:insertIdx+6] + "\n<a class='button' href='/home'>Home</a>\n<div class='floating-menu'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a>\n</div>\n" + html[insertIdx+6:]
             
@@ -115,10 +115,12 @@ def home():
                 f.close()
             
             # Generates images for each image prompt
+            print("generating images")
             imageStartTime = time.time()
-            debug = True
+            
+            debug = "imagegen" not in request.args
             for name, prompt in zip(image_names, image_prompts):
-                img = generateImage(prompt, debug=debug)  # debug=True to skip image generation
+                img = generateImage(prompt, debug=debug)
                 with open(f"static/images/{name}", "wb") as f:
                     f.write(img)
                     f.close()
@@ -130,13 +132,15 @@ def home():
             lastQuery = request.args["q"]
             print("serving generated site")
             
-            stylesheet = "journal.css"
-            if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
             totalTimeElapsed = time.time() - startTime
             print(totalTimeElapsed)
+            
             with open("time.txt", "a") as f:
-                f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},userRequest,{len(html)},debug:{debug}\n")
+                f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},{userRequest},{len(html)},debug:{debug}\n")
                 f.close()
+            
+            stylesheet = "journal.css"
+            if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
             return redirect(f"/lastgen?sheet={stylesheet}")
     return send_from_directory(app.static_folder, path="index.html")
 

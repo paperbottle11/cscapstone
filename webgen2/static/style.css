@@ -1,5 +1,7 @@
 html {
-    color: white;
+    font-family: "Titillium Web", sans-serif;
+}
+input[type="text"], button[type="submit"] {
     font-family: "Titillium Web", sans-serif;
 }
 body {
@@ -23,14 +25,21 @@ body {
     font-size: 24pt;
     border-radius: 10px;
 }
-.input-box input {
+.input-box input[type="text"] {
     width: 100%;
     padding: 10px;
     border: 1px solid black;
     outline: rgb(0, 0, 0) 3px solid;
 }
-input[type="text"], button[type="submit"] {
-    font-family: "Titillium Web", sans-serif;
+label {
+    margin-top: 20px;
+    font-size: 24pt;
+}
+.input-box input[type="checkbox"]{
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .input-box p {
     margin-top: 20px;
