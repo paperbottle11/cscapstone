@@ -27,6 +27,14 @@ I played around with using multiple responses to build up the website instead ge
 <h4>TicTacToe:</h4>
 This project has been terminated.
 
+<h3>10/7/23</h3>
+<h4>WebGen:</h4>
+A refresh of the project has occurred since the last entry.  It now generates the full HTML for a website, and the user can select from many premade bootstrap CSS stylesheets with a small menu on the generated website.  It also has the capability to generate the images needed for the website, such as visual aids for the content in the website.
+
 <h3>10/13/23</h3>
 <h4>WebGen:</h4>
-A refresh of the project has occurred since the last entry.  It now generates the full HTML for a website, and the user can select from many premade bootstrap CSS stylesheets with a small menu on the generated website.  It also has the capability to generate the images needed for the website, such as visual aids for the content in the website.  It works very well, but time consumption is a minor issue as it takes quite a while to generate the images and content.  Measuring the elapsed time and comparing it to the length of the generations is one way of studying its performance and will be used to test it.
+The project overall works very well, but time consumption is a minor issue as it takes quite a while to generate the images and content.  Measuring the elapsed time and comparing it to the length of the generations is one way of studying its performance and will be used to test it.  Plotting the time elapsed vs. length of content would be a great way to visualize this.
+
+A diagram of the program was also created.
+
+<img alt="diagram of program" src="diagram.png" style="width: 75%; float: left;">
