@@ -6,6 +6,7 @@ import numpy as np
 import openai
 import json
 from pydantic import BaseModel
+import time
 
 def byte_image_to_numpy(byte_image):
     np_array = np.frombuffer(byte_image, np.uint8)
@@ -40,15 +41,15 @@ def generateImage(prompt, debug=False):
 
 class WebsiteAIResponse(BaseModel):
     html: str
-    image_names: list
-    image_prompts: list
+    image_names: list[str]
+    image_prompts: list[str]
 
 def generate(userRequest):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[
             {"role": "system", "content": "You are a machine that generates a website with HTML."},
-            {"role": "user", "content": f"The request is: {userRequest}. Create HTML code with all of the content in English that would be in the request. The output must be valid json text. Be informative. Use three images. In the backend, make corresponding lists of image file names and of detailed descriptions for each image name. Position these images in the website where they logically make sense. The folder where the images are located is called \"images\". Use bootstrap CSS classes to style the html. Do not link a bootstrap stylesheet."}
+            {"role": "user", "content": f"The request is: {userRequest}. Create HTML code with all of the content in English that would be in the request. The output must be valid json text without any unescaped double quotes in the website. Be informative. Use three images. In the backend, make corresponding lists of image file names and of detailed descriptions for each image name. Position these images in the website where they logically make sense. The folder where the images are located is called \"images\". Use bootstrap CSS classes to style the html. Do not link a bootstrap stylesheet."}
         ],
         functions=[
             {
@@ -90,8 +91,13 @@ def home():
             return redirect(f"/lastgen?sheet={stylesheet}")
         else: 
             # Generates a new website if the query is different from the last one
+            startTime = time.time()
             print("generating")
-            html, image_names, image_prompts = generate(request.args["q"])
+            userRequest = request.args["q"]
+            startTextTime = time.time()
+            html, image_names, image_prompts = generate(userRequest)
+            textTimeElapsed = time.time() - startTextTime
+            print("text generation time: " + str(textTimeElapsed))
 
             insertIdx = html.find("<head>")
             element = "\n<link rel='stylesheet' href='css/{{stylesheet}}'>"
@@ -108,21 +114,29 @@ def home():
                 f.write(html.encode())
                 f.close()
             
-            print(image_names)
-            print(image_prompts)
             # Generates images for each image prompt
+            imageStartTime = time.time()
+            debug = True
             for name, prompt in zip(image_names, image_prompts):
-                img = generateImage(prompt, debug=False)  # debug=True to skip image generation
+                img = generateImage(prompt, debug=debug)  # debug=True to skip image generation
                 with open(f"static/images/{name}", "wb") as f:
                     f.write(img)
                     f.close()
             
+            imageTimeElapsed = time.time() - imageStartTime
+            print("image generation time: " + str(imageTimeElapsed))
+
             # Save the current query as the last query
             lastQuery = request.args["q"]
             print("serving generated site")
             
             stylesheet = "journal.css"
             if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
+            totalTimeElapsed = time.time() - startTime
+            print(totalTimeElapsed)
+            with open("time.txt", "a") as f:
+                f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},userRequest,{len(html)},debug:{debug}\n")
+                f.close()
             return redirect(f"/lastgen?sheet={stylesheet}")
     return send_from_directory(app.static_folder, path="index.html")
 
