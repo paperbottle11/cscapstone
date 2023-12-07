@@ -43,13 +43,18 @@ class WebsiteAIResponse(BaseModel):
     image_names: list[str]
     image_prompts: list[str]
 
-def generate(userRequest, model="gpt-3.5-turbo-0613"):
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=[
+def generate(userRequest, model="gpt-3.5-turbo-0613", messages=None):
+    msg = [
             {"role": "system", "content": "You are a machine that generates a website with HTML."},
             {"role": "user", "content": f"The request is: {userRequest}. Create HTML code with all of the content in English that would be in the request. The output must be valid json text without any unescaped double quotes and no newline characters. Be informative. Use between one and three images. In the backend, make corresponding lists of image file names and of detailed descriptions for each image name. Position these images in the website where they logically make sense. The folder for images is called \"images\". Use bootstrap CSS classes to style the html. Do not link a bootstrap stylesheet."}
-        ],
+        ]
+    
+    if messages is not None:
+        msg.extend(messages)
+
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=msg,
         functions=[
             {
             "name": "create_website",
@@ -73,6 +78,17 @@ def index():
 
 global lastQuery
 lastQuery = ""
+
+def processHTML(html):
+    insertIdx = html.find("<head>")
+    element = "\n<link rel='stylesheet' href='css/{{stylesheet}}'>"
+    html = html[:insertIdx+6] + element + html[insertIdx+6:]
+
+    html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='css/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
+    
+    insertIdx = html.find("<body>")
+    html = html[:insertIdx+6] + "\n<a class='button' href='/home'>Home</a>\n<div class='floating-menu'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a>\n<form action='/lastgen'>\n<input type='text' name='feedback' placeholder='Enter feedback'>\n<input type='submit' value='Submit'>\n</form>\n<input type='hidden' name='sheet' value='{{stylesheet}}'>\n</div>\n" + html[insertIdx+6:]
+    return html  
 
 @app.route('/home', methods=['GET'])
 def home():
@@ -100,16 +116,12 @@ def home():
             textTimeElapsed = time.time() - startTextTime
             print("text generation time: " + str(textTimeElapsed))
 
-            insertIdx = html.find("<head>")
-            element = "\n<link rel='stylesheet' href='css/{{stylesheet}}'>"
-            html = html[:insertIdx+6] + element + html[insertIdx+6:]
+            with open("baseHTML.html", "w") as f:
+                f.write(html)
+                f.close()
 
-            html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='css/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
-            
-            # Inserts a home button into the generated site
-            insertIdx = html.find("<body>")
-            html = html[:insertIdx+6] + "\n<a class='button' href='/home'>Home</a>\n<div class='floating-menu'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a>\n</div>\n" + html[insertIdx+6:]
-            
+            html = processHTML(html)
+
             # Writes the generated site to the generated folder
             with open("templates/gen.html", "wb") as f:
                 f.write(html.encode())
@@ -160,7 +172,32 @@ def img_gen_assets(filename):
 @app.route('/lastgen', methods=['GET'])
 def lastgen():
     stylesheet = "journal.css"
-    if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
+    if request.method == 'GET':
+        if "sheet" in request.args: stylesheet=request.args["sheet"]
+        if "feedback" in request.args:
+            try:
+                with open("baseHTML.html", "r") as f:
+                    html = f.read()
+                    f.close()
+            except FileNotFoundError:
+                with open("templates/gen.html", "r") as f:
+                    html = f.read()
+                    f.close()
+
+            newMsgs = [{"role": "assistant", "content": html},
+                       {'role': 'user', 'content': "The following feedback are changes that need to made to the code.  Add, remove, and change the code as needed.  The feedback is: " + request.args["feedback"]}
+                    ]
+            print("processing feedback:", request.args["feedback"] if "feedback" in request.args else "")
+            newhtml, image_names, image_prompts = generate(lastQuery, messages=newMsgs)
+            with open("baseHTML.html", "w") as f:
+                f.write(newhtml)
+                f.close()
+            
+            newhtml = processHTML(newhtml)
+            with open("templates/gen.html", "wb") as f:
+                f.write(newhtml.encode())
+                f.close()
+
     return render_template("gen.html", stylesheet=stylesheet)
 
 if __name__ == "__main__":
