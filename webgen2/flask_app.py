@@ -1,5 +1,4 @@
 from flask import Flask, send_from_directory, redirect, request, render_template
-from pathlib import Path
 from base64 import b64decode
 import cv2
 import numpy as np
@@ -44,12 +43,12 @@ class WebsiteAIResponse(BaseModel):
     image_names: list[str]
     image_prompts: list[str]
 
-def generate(userRequest):
+def generate(userRequest, model="gpt-3.5-turbo-0613"):
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
+        model=model,
         messages=[
             {"role": "system", "content": "You are a machine that generates a website with HTML."},
-            {"role": "user", "content": f"The request is: {userRequest}. Create HTML code with all of the content in English that would be in the request. The output must be valid json text without any unescaped double quotes in the website. Be informative. Use three images. In the backend, make corresponding lists of image file names and of detailed descriptions for each image name. Position these images in the website where they logically make sense. The folder where the images are located is called \"images\". Use bootstrap CSS classes to style the html. Do not link a bootstrap stylesheet."}
+            {"role": "user", "content": f"The request is: {userRequest}. Create HTML code with all of the content in English that would be in the request. The output must be valid json text without any unescaped double quotes and no newline characters. Be informative. Use between one and three images. In the backend, make corresponding lists of image file names and of detailed descriptions for each image name. Position these images in the website where they logically make sense. The folder for images is called \"images\". Use bootstrap CSS classes to style the html. Do not link a bootstrap stylesheet."}
         ],
         functions=[
             {
@@ -63,7 +62,7 @@ def generate(userRequest):
     with open("json.json", "w") as f:
         f.write(response.choices[0]["message"]["function_call"]["arguments"])
         f.close()
-    output = json.loads(response.choices[0]["message"]["function_call"]["arguments"].encode())
+    output = json.loads(response.choices[0]["message"]["function_call"]["arguments"].strip().encode())
     return output["html"], output["image_names"], output["image_prompts"]
 
 app = Flask(__name__, static_folder="static")
@@ -86,7 +85,7 @@ def home():
             return redirect(f"/lastgen?sheet={stylesheet}")
         else: 
             print("Request: " + request.args["q"])
-            print("Image Generation: " + "off" if "imagegen" not in request.args else "on")
+            print("Image Generation:", "off" if "imagegen" not in request.args else "on")
             startTime = time.time()
             
             print("generating website")
@@ -94,7 +93,9 @@ def home():
             
             startTextTime = time.time()
             
-            html, image_names, image_prompts = generate(userRequest)
+            model = "gpt-3.5-turbo-0613"
+            # model = "gpt-4-1106-preview"
+            html, image_names, image_prompts = generate(userRequest, model=model)
             
             textTimeElapsed = time.time() - startTextTime
             print("text generation time: " + str(textTimeElapsed))
@@ -136,7 +137,7 @@ def home():
             print(totalTimeElapsed)
             
             with open("time.txt", "a") as f:
-                f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},{userRequest},{len(html)},debug:{debug}\n")
+                f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},{userRequest},{len(html)},model:{model},imagegen:{not debug}\n")
                 f.close()
             
             stylesheet = "journal.css"
@@ -163,4 +164,5 @@ def lastgen():
     return render_template("gen.html", stylesheet=stylesheet)
 
 if __name__ == "__main__":
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(host="0.0.0.0", port=80)

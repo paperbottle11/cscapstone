@@ -1,3 +1,23 @@
-56.69344139099121,56.68947219848633,0.0019965171813964844,userRequest,2976,debug:True
-45.01844811439514,45.01445913314819,0.001995086669921875,userRequest,2484,debug:True
-123.6491425037384,123.63316655158997,0.011984586715698242,userRequest,3754,debug:True
+totaltime,texttime,imagetime,request,length,model,imagegen
+56.69344139099121,56.68947219848633,0.0019965171813964844,userRequest,2976,model:gpt-3.5-turbo-0613,imagegen:False
+45.01844811439514,45.01445913314819,0.001995086669921875,userRequest,2484,model:gpt-3.5-turbo-0613,imagegen:False
+123.6491425037384,123.63316655158997,0.011984586715698242,userRequest,3754,model:gpt-3.5-turbo-0613,imagegen:False
+100.90673041343689,100.90370559692383,0.0030248165130615234,I want to learn about mushrooms,3757,model:gpt-3.5-turbo-0613,imagegen:False
+148.14008927345276,66.81267809867859,81.3268141746521,I want to learn about mushrooms,2971,model:gpt-3.5-turbo-0613,imagegen:True
+147.18810844421387,87.790456533432,59.39664697647095,Create an article about mushrooms,2996,model:gpt-3.5-turbo-0613,imagegen:True
+62.558528423309326,62.55171084403992,0.00681757926940918,I want to learn about mushrooms,2957,model:gpt-3.5-turbo-0613,imagegen:False
+45.306286334991455,45.302295207977295,0.002010345458984375,I want to learn about sea horses.,2694,model:gpt-3.5-turbo-0613,imagegen:False
+36.87795972824097,36.8738808631897,0.001298666000366211,I want to learn about apples,2982,model:gpt-4-1106-preview,imagegen:False
+46.70740294456482,46.690807580947876,0.01659536361694336,I want to learn about apples,2101,model:gpt-3.5-turbo-0613,imagegen:False
+40.520933866500854,40.516704082489014,0.0032308101654052734,I want to learn about apples,2014,model:gpt-3.5-turbo-0613,imagegen:False
+28.483262300491333,28.48019289970398,0.0019965171813964844,I want to learn about apples,2589,model:gpt-4-1106-preview,imagegen:False
+75.38328456878662,75.38328456878662,0.0,Write a short fiction story about penguins,2985,model:gpt-4-1106-preview,imagegen:False
+55.17209243774414,55.169100284576416,0.000997304916381836,Create some poems about nature,2935,model:gpt-4-1106-preview,imagegen:False
+36.894920349121094,36.894920349121094,0.0,I want to learn about mushrooms,2238,model:gpt-4-1106-preview,imagegen:False
+60.20551085472107,60.20251750946045,0.001994609832763672,I want to learn about sea horses,2975,model:gpt-4-1106-preview,imagegen:False
+45.04912304878235,45.04912304878235,0.0,create an article about how tables are made,2734,model:gpt-4-1106-preview,imagegen:False
+53.952983379364014,53.93806529045105,0.00690913200378418,what kinds of fish live in freshwater,2666,model:gpt-4-1106-preview,imagegen:False
+49.566874742507935,49.54928207397461,0.016698837280273438,Write a short story about a capybara living in a shoe,3209,model:gpt-4-1106-preview,imagegen:False
+32.820292949676514,32.80429220199585,0.008001327514648438,Write a short story about a capybara living in a shoe,2376,model:gpt-3.5-turbo-0613,imagegen:False
+42.29977488517761,42.2790253162384,0.004757881164550781,Write a short story about a penguin living on a ship,4643,model:gpt-3.5-turbo-0613,imagegen:False
+24.88242793083191,24.870654821395874,0.011773109436035156,i want to learn about penguins,3205,model:gpt-3.5-turbo-0613,imagegen:False

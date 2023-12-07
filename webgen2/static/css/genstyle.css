@@ -27,7 +27,7 @@ html {
     width: auto;
     z-index: 100;
     position: fixed;
-    bottom: 0px;
+    bottom: 50px;
     right: 0px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
