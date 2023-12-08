@@ -1,5 +1,6 @@
 from flask import Flask, send_from_directory, redirect, request, render_template
 from base64 import b64decode
+import os
 import cv2
 import numpy as np
 import openai
@@ -76,10 +77,27 @@ app = Flask(__name__, static_folder="static")
 def index():
     return redirect('/home')
 
-global lastQuery
+global lastQuery, app_root, generations_count, view_number, project_number, project_path, projects_count
 lastQuery = ""
 
-def processHTML(html):
+app_root = os.path.dirname(os.path.abspath(__file__))
+projects_count = len([entry for entry in os.listdir(app_root) if os.path.isdir(os.path.join(app_root, entry)) and entry.startswith("generations")])
+
+project_number = projects_count - 1 if projects_count > 0 else 0
+project_path = os.path.join(app_root, f"generations{project_number}")
+
+generations_count = 0
+if os.path.exists(project_path):
+    generations_count = len([entry for entry in os.listdir(project_path) if os.path.isfile(os.path.join(project_path, entry)) and entry.startswith("baseHTML")])
+
+view_number = generations_count - 1 if generations_count > 0 else 0
+
+def processHTML(html, current_view=view_number):
+    if current_view == 0: prevView = 0
+    else: prevView = current_view - 1
+    if current_view == generations_count - 1: nextView = current_view
+    else: nextView = current_view + 1
+    
     insertIdx = html.find("<head>")
     element = "\n<link rel='stylesheet' href='css/{{stylesheet}}'>"
     html = html[:insertIdx+6] + element + html[insertIdx+6:]
@@ -87,12 +105,12 @@ def processHTML(html):
     html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='css/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
     
     insertIdx = html.find("<body>")
-    html = html[:insertIdx+6] + "\n<a class='button' href='/home'>Home</a>\n<div class='floating-menu'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a>\n<form action='/lastgen'>\n<input type='text' name='feedback' placeholder='Enter feedback'>\n<input type='submit' value='Submit'>\n</form>\n<input type='hidden' name='sheet' value='{{stylesheet}}'>\n</div>\n" + html[insertIdx+6:]
-    return html  
+    html = html[:insertIdx+6] + f"\n<a class='button home' href='/home'>Home</a>\n<div class='floating-menu'>\n<div id='stylesheetlist'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a></div>\n<p>Last input: \"{'{{view_feedback}}'}\"</p>\n<form action='/lastgen'>\n<textarea rows='3' name='feedback' placeholder='enter feedback'></textarea>\n<input type='submit' value='Submit'>\n<input type='hidden' name='sheet' value='{'{{stylesheet}}'}'>\n<input type='hidden' name='view' value='{'{{view}}'}'>\n</form>\n<div id='view-nav'>\n<a class='button' href=\"/lastgen?sheet={'{{stylesheet}}'}&view={prevView}\">&lt;</a>\nRevision: #{current_view} (made from Revision #{'{{source_num}}'})\n<a class='button' href=\"/lastgen?sheet={'{{stylesheet}}'}&view={nextView}\">&gt;</a>\n</div>\n</div>\n" + html[insertIdx+6:]
+    return html
 
 @app.route('/home', methods=['GET'])
 def home():
-    global lastQuery
+    global lastQuery, app_root, generations_count, view_number, project_number, project_path, projects_count
     if request.method == 'GET' and "q" in request.args:
         if request.args["q"] == "": return redirect('/home')
         elif request.args["q"] == lastQuery: 
@@ -104,6 +122,14 @@ def home():
             print("Image Generation:", "off" if "imagegen" not in request.args else "on")
             startTime = time.time()
             
+            project_number = projects_count
+            project_path = os.path.join(app_root, f"generations{project_number}")
+            if os.path.exists(project_path):
+                confirm = input("Project already exists.  Do you want to continue? (y/n) ")
+                if confirm.lower() == "n": return redirect('/home')
+            os.makedirs(os.path.join(project_path, "images"))
+            projects_count += 1
+
             print("generating website")
             userRequest = request.args["q"]
             
@@ -116,14 +142,17 @@ def home():
             textTimeElapsed = time.time() - startTextTime
             print("text generation time: " + str(textTimeElapsed))
 
-            with open("baseHTML.html", "w") as f:
+            generations_count = 0
+            view_number = 0
+            with open(os.path.join(project_path, f"baseHTML{generations_count}.html"), "w") as f:
                 f.write(html)
                 f.close()
-
+        
+            generations_count += 1
             html = processHTML(html)
 
             # Writes the generated site to the generated folder
-            with open("templates/gen.html", "wb") as f:
+            with open("templates/view.html", "wb") as f:
                 f.write(html.encode())
                 f.close()
             
@@ -134,7 +163,7 @@ def home():
             debug = "imagegen" not in request.args
             for name, prompt in zip(image_names, image_prompts):
                 img = generateImage(prompt, debug=debug)
-                with open(f"static/images/{name}", "wb") as f:
+                with open(os.path.join(project_path, "images", name), "wb") as f:
                     f.write(img)
                     f.close()
             
@@ -152,9 +181,13 @@ def home():
                 f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},{userRequest},{len(html)},model:{model},imagegen:{not debug}\n")
                 f.close()
             
+            with open(os.path.join(project_path, "log.json"), "w") as f:
+                json.dump({str(view_number): lastQuery}, f)
+                f.close()
+
             stylesheet = "journal.css"
             if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
-            return redirect(f"/lastgen?sheet={stylesheet}")
+            return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}")
     return send_from_directory(app.static_folder, path="index.html")
 
 @app.route('/generated/<path:filename>')
@@ -167,38 +200,70 @@ def css_assets(filename):
 
 @app.route('/images/<path:filename>')
 def img_gen_assets(filename):
-    return send_from_directory("static/images", filename)
+    return send_from_directory(os.path.join(project_path, "images"), filename)
 
 @app.route('/lastgen', methods=['GET'])
 def lastgen():
+    global lastQuery, app_root, generations_count, view_number, project_number, project_path, projects_count
     stylesheet = "journal.css"
     if request.method == 'GET':
         if "sheet" in request.args: stylesheet=request.args["sheet"]
+        if "view" in request.args: view = int(request.args["view"])
+        else: view = view_number
         if "feedback" in request.args:
             try:
-                with open("baseHTML.html", "r") as f:
+                with open(os.path.join(project_path, f"baseHTML{view}.html"), "r") as f:
                     html = f.read()
                     f.close()
             except FileNotFoundError:
-                with open("templates/gen.html", "r") as f:
+                with open("templates/view.html", "r") as f:
                     html = f.read()
                     f.close()
 
             newMsgs = [{"role": "assistant", "content": html},
-                       {'role': 'user', 'content': "The following feedback are changes that need to made to the code.  Add, remove, and change the code as needed.  The feedback is: " + request.args["feedback"]}
+                       {'role': 'user', 'content': "The following feedback are changes that need to made to the code.  Add, remove, and change the code as needed.  The output should be valid json text.  The feedback is: " + request.args["feedback"]}
                     ]
             print("processing feedback:", request.args["feedback"] if "feedback" in request.args else "")
             newhtml, image_names, image_prompts = generate(lastQuery, messages=newMsgs)
-            with open("baseHTML.html", "w") as f:
+            view_number += 1
+            generations_count += 1
+            with open(os.path.join(project_path, f"baseHTML{view_number}.html"), "w") as f:
                 f.write(newhtml)
                 f.close()
             
             newhtml = processHTML(newhtml)
-            with open("templates/gen.html", "wb") as f:
+            with open("templates/view.html", "wb") as f:
                 f.write(newhtml.encode())
                 f.close()
 
-    return render_template("gen.html", stylesheet=stylesheet)
+            with open(os.path.join(project_path, "log.json"), "r") as f:
+                view_feedback = json.load(f)
+                f.close()
+            view_feedback[str(view_number)] = [request.args["feedback"], view]
+            with open(os.path.join(project_path, "log.json"), "w") as f:
+                json.dump(view_feedback, f)
+                f.close()
+            
+            return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}")
+        else:
+            with open(os.path.join(project_path, f"baseHTML{view}.html"), "r") as f:
+                html = f.read()
+                f.close()
+            html = processHTML(html, current_view=view)
+            with open("templates/view.html", "wb") as f:
+                f.write(html.encode())
+                f.close()
+
+    view_feedback = "Not Found."
+    source_num = "Not Found."
+    log_path = os.path.join(project_path, "log.json")
+    if os.path.exists(log_path):
+        with open(log_path, "r") as f:
+            log = json.load(f)
+            if str(view) in log:
+                view_feedback, source_num = log[str(view)]
+            f.close()
+    return render_template("view.html", stylesheet=stylesheet, view_feedback=view_feedback, view=view, source_num=source_num)
 
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True
