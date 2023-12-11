@@ -7,6 +7,7 @@ import openai
 import json
 from pydantic import BaseModel
 import time
+import shutil
 
 def byte_image_to_numpy(byte_image):
     np_array = np.frombuffer(byte_image, np.uint8)
@@ -68,7 +69,10 @@ def generate(userRequest, model="gpt-3.5-turbo-0613", messages=None):
     with open("json.json", "w") as f:
         f.write(response.choices[0]["message"]["function_call"]["arguments"])
         f.close()
-    output = json.loads(response.choices[0]["message"]["function_call"]["arguments"].strip().encode())
+    try:
+        output = json.loads(response.choices[0]["message"]["function_call"]["arguments"].strip().encode())
+    except json.decoder.JSONDecodeError:
+        return "failed", [], []
     return output["html"], output["image_names"], output["image_prompts"]
 
 app = Flask(__name__, static_folder="static")
@@ -111,14 +115,14 @@ def processHTML(html, current_view=view_number):
 @app.route('/home', methods=['GET'])
 def home():
     global lastQuery, app_root, generations_count, view_number, project_number, project_path, projects_count
-    if request.method == 'GET' and "q" in request.args:
-        if request.args["q"] == "": return redirect('/home')
-        elif request.args["q"] == lastQuery: 
+    if request.method == 'GET' and "request" in request.args:
+        if request.args["request"] == "": return redirect('/home')
+        elif request.args["request"] == lastQuery: 
             stylesheet = "journal.css"
             if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
             return redirect(f"/lastgen?sheet={stylesheet}")
         else: 
-            print("Request: " + request.args["q"])
+            print("Request: " + request.args["request"])
             print("Image Generation:", "off" if "imagegen" not in request.args else "on")
             startTime = time.time()
             
@@ -131,16 +135,24 @@ def home():
             projects_count += 1
 
             print("generating website")
-            userRequest = request.args["q"]
+            userRequest = request.args["request"]
             
             startTextTime = time.time()
             
             model = "gpt-3.5-turbo-0613"
             # model = "gpt-4-1106-preview"
             html, image_names, image_prompts = generate(userRequest, model=model)
-            
             textTimeElapsed = time.time() - startTextTime
             print("text generation time: " + str(textTimeElapsed))
+
+            if html == "failed":
+                print("Failed to generate HTML due to JSON error")
+                try:
+                    shutil.rmtree(project_path, ignore_errors=True)
+                except Exception as e:
+                    print(f'Failed to delete directory: {e}')
+                projects_count -= 1
+                return redirect('/error')
 
             generations_count = 0
             view_number = 0
@@ -171,7 +183,7 @@ def home():
             print("image generation time: " + str(imageTimeElapsed))
 
             # Save the current query as the last query
-            lastQuery = request.args["q"]
+            lastQuery = request.args["request"]
             print("serving generated site")
             
             totalTimeElapsed = time.time() - startTime
@@ -190,17 +202,24 @@ def home():
             return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}")
     
     projects = []
+    projects_count = len([entry for entry in os.listdir(app_root) if os.path.isdir(os.path.join(app_root, entry)) and entry.startswith("generations")])
     for i in range(projects_count):
-        path = os.path.join(app_root, f"generations{i}", "log.json")
+        path = os.path.join(app_root, f"generations{i}")
         if os.path.exists(path):
-            with open(path, "r") as f:
-                project = json.load(f)
-                f.close()
-            projects.append(project["0"][0])
-        else:
-            projects.append("Not Found.")
+            log = os.path.join(path, "log.json")
+            if os.path.exists(log):
+                with open(log, "r") as f:
+                    project = json.load(f)
+                    f.close()
+                projects.append(project["0"][0])
+            else:
+                projects.append("Not Found.")
     
     return render_template("index.html", projects=projects)
+
+@app.route('/error')
+def error():
+    return send_from_directory(app.static_folder, "error.html")
 
 @app.route('/generated/<path:filename>')
 def web_gen_assets(filename):

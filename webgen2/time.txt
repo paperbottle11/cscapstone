@@ -29,3 +29,7 @@ totaltime,texttime,imagetime,request,length,model,imagegen
 31.006004810333252,31.00104856491089,0.0029909610748291016,I want to learn about mushrooms,4536,model:gpt-3.5-turbo-0613,imagegen:False
 15.162531852722168,15.146924495697021,0.0076029300689697266,what is the fnaf lore about,3721,model:gpt-3.5-turbo-0613,imagegen:False
 15.61728048324585,15.609356880187988,0.005986213684082031,tell me about the character pou,3852,model:gpt-3.5-turbo-0613,imagegen:False
+20.91216206550598,20.911903381347656,0.0,how do electric trains work,4363,model:gpt-3.5-turbo-0613,imagegen:False
+25.957509517669678,25.941537380218506,0.008004188537597656,what is the tabular method in calculus,4666,model:gpt-3.5-turbo-0613,imagegen:False
+18.072291374206543,18.052820920944214,0.0038497447967529297,what symbols are in calculus and physics,3652,model:gpt-3.5-turbo-0613,imagegen:False
+38.13644790649414,38.12547206878662,0.010975837707519531,what is atlanta like,5542,model:gpt-3.5-turbo-0613,imagegen:False

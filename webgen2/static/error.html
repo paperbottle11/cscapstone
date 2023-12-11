@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Oops...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web">
+    <style>
+        html {
+            font-family: "Titillium Web", sans-serif;
+            background-color: #555;
+        }
+        .button {
+            display: block;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 5px;
+            border-style: solid;
+            border-width: 1px;
+            font-weight: bold;
+            background-color: rgb(168, 168, 168);
+            color: black;
+            border-color: black;
+            font-size: 14pt;
+        }
+        .button:hover {
+            background-color: #555;
+            color: white;
+        }
+        .home {
+            padding: 10px 20px;
+            margin-top: 10px;
+            width: 100px;
+            margin: 20px auto;
+        }
+        h1 {
+            font-size: 30pt;
+            margin-bottom: 5px;
+        }
+        p {
+            margin-top: 0;
+            font-size: 18pt;
+            width: 75%;
+        }
+        .main {
+            text-align: center;
+            margin: 20px auto;
+            width: 50%;
+            background-color: #ddd;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>Your request was too powerful...</h1>
+        <p>Sorry, an error occurred while generating the code. It may be due to your request causing invalid or complicated characters to be generated,
+            which causes decoding errors in the server. Please try again with a different request.
+        </p>
+    </div>
+    <a class="home button" href="/home">Home</a>
+</body>
+</html>

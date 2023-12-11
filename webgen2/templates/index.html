@@ -7,20 +7,22 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web">
 </head>
 <body>
-    <form class="input-box">
+    <form class="input-box" onsubmit="hidesubmit();">
         <h2>Enter your request</h2>
-        <input type="text" name="q" placeholder="I want to learn about turtles.">
+        <input type="text" name="request" placeholder="I want to learn about turtles.">
         <label><input type="checkbox" name="imagegen" value="true">Allow Image Generation</label>
         <div class="submitbutton">
             <button type="submit" id="showButton">Submit</button>
             <div class="loader" id="hiddenDiv"></div>
         </div>
     </form>
-    <h2 id="projects-list-title">Projects</h2>
-    <div id="projects-list">
-        {% for i in range(projects|length) %}
-            <div id="project-item"><a href="/lastgen?project={{i}}" class="projectbutton">Project {{i + 1}}</a><p>"{{projects[i]}}"</p></div>
-        {% endfor %}
+    <div id="projects-list-container">
+        <h2 id="projects-list-title">Projects</h2>
+        <div id="projects-list">
+            {% for i in range(projects|length) %}
+                <div id="project-item"><a href="/lastgen?project={{i}}" class="projectbutton">Project {{i + 1}}</a><p>"{{projects[i]}}"</p></div>
+            {% endfor %}
+        </div>
     </div>
     <script>
         // Get references to the button and the hidden div
@@ -32,6 +34,11 @@
             // Change the display style to "block" to show the div
             hiddenDiv.style.display = "block";
         });
+
+        function hidesubmit() {
+            let button = document.getElementById('showButton');
+            button.disabled = true;
+        }
     </script>
 </body>
 </html>

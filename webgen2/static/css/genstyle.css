@@ -45,7 +45,7 @@
     width: 25%;
 }
 html {
-    margin: 10px;
+    margin: 0;
 }
 .floating-menu {
     display: flex;

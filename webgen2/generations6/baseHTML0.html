@@ -1,54 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel='stylesheet' href='css/{{stylesheet}}'>
-<link rel='stylesheet' href='css/genstyle.css'>
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>
-<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
-
 <meta charset="UTF-8">
 <title>Atlanta</title>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<div class='floating-menu'>
-<div id='stylesheetlistcontainer'><p>Stylesheets:</p><div id='stylesheetlist'>
-<a class='button' href='/lastgen?sheet=cerulean.css&project={{project_num}}&view={{view}}'>Cerulean</a>
-<a class='button' href='/lastgen?sheet=cosmo.css&project={{project_num}}&view={{view}}'>Cosmo</a>
-<a class='button' href='/lastgen?sheet=darkly.css&project={{project_num}}&view={{view}}'>Darkly</a>
-<a class='button' href='/lastgen?sheet=journal.css&project={{project_num}}&view={{view}}'>Journal</a>
-<a class='button' href='/lastgen?sheet=lux.css&project={{project_num}}&view={{view}}'>Lux</a>
-<a class='button' href='/lastgen?sheet=quartz.css&project={{project_num}}&view={{view}}'>Quartz</a>
-<a class='button' href='/lastgen?sheet=united.css&project={{project_num}}&view={{view}}'>United</a></div>
-</div>
-<form action='/lastgen' onsubmit='hidesubmit();'>
-<p>Last feedback: "{{view_feedback}}"</p>
-<textarea rows='3' name='feedback' placeholder='enter feedback'></textarea>
-<div class='submitbutton'>
-<button id='submitbutton' type='submit'>Submit</button><div class='loader' id='hiddenDiv'>
-</div>
-</div>
-<input type='hidden' name='sheet' value='{{stylesheet}}'>
-<input type='hidden' name='view' value='{{view}}'>
-<input type='hidden' name='project' value='{{project_num}}'>
-</form>
-<div class='menu-section'>
-<div id='view-nav'>
-<a class='button' href='/lastgen?sheet={{stylesheet}}&view=0&project={{project_num}}'>&lt;</a>
-<div id='generation-view'>
-<p>Revision: #0 (made from Revision #{{source_num}})</p>
-<p>Total Generations: 1</p>
-</div>
-<a class='button' href='/lastgen?sheet={{stylesheet}}&view=0&project={{project_num}}'>&gt;</a>
-</div>
-<a class='button home' href='/home'>Home</a>
-</div>
-</div>
-<script>
-let showButton = document.getElementById('submitbutton');
-let hiddenDiv = document.getElementById('hiddenDiv');
-showButton.onclick = function() {hiddenDiv.style.display = 'block';};
-function hidesubmit() {let button = document.getElementById('submitbutton');button.disabled = true; }</script>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <a class="navbar-brand" href="#">Atlanta</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
