@@ -40,6 +40,7 @@ label {
     height: 20px;
     margin-left: 10px;
     margin-right: 10px;
+    accent-color: #555;
 }
 .input-box p {
     margin-top: 20px;
@@ -54,16 +55,9 @@ label {
     background-color: rgb(168, 168, 168);
     color: rgb(0, 0, 0);
 }
-.input-box button:hover, .lastgenbutton:hover {
-    background-color: rgb(0, 0, 0);
+.input-box button:hover {
+    background-color: #555;
     color: white;
-}
-.attr-bg {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    background-color: black;
-    padding: 10px;
 }
 .submitbutton {
     display: flex;
@@ -99,6 +93,10 @@ label {
     width: 35%;
     text-align: center;
     text-decoration: none;
+}
+.projectbutton:hover {
+    background-color: #555;
+    color: white;
 }
 #projects-list-title {
     margin-top: 20px;
