@@ -1,3 +1,26 @@
+.submitbutton {
+    display: flex;
+    flex-direction: row;
+    height: auto;
+    width: 100%;
+    justify-content: left;
+    align-items: center;
+    margin-left: 0;
+}
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #0079ca; /* Blue */
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    margin: 10px;
+    animation: spin 2s linear infinite;
+    display: none;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 .button {
     display: block;
     /* width: auto; */
@@ -9,7 +32,6 @@
     font-weight: bold;
     background-color: #ddd;
     color: black;
-    float: right;
 }
 .button:hover {
     background-color: #555;
@@ -18,32 +40,52 @@
 .home{
     padding: 10px 20px;
     margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 25%;
 }
 html {
     margin: 10px;
 }
 .floating-menu {
+    display: flex;
+    flex-direction: row;
     font-family: sans-serif;
-    background: yellowgreen;
-    padding: 5px;
-    width: 25%;
+    background: #555;
+    padding: 15px;
+    width: 100%;
     z-index: 100;
-    position: fixed;
     bottom: 50px;
     right: 0px;
+    justify-content: center;
+    justify-content: space-evenly;
+    margin-bottom: 20px;
 }
 .floating-menu p {
     margin-top: 10px;
     margin-bottom: 0;
     font-size: 14pt;
+    font-weight: bold;
+    text-align: center;
+    background-color: #ddd;
+    padding: 5px;
+    border-radius: 5px;
+    color: black;
+}
+.floating-menu hr {
+    margin: 10px;
 }
 #stylesheetlist {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
 }
 #stylesheetlist .button {
     width: 100%;
-    padding: 10px 20px;
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
     margin-top: 10px;
 }
 form {
@@ -52,8 +94,13 @@ form {
     gap: 10px;
     margin-top: 10px;
 }
-form input[type=submit] {
-    width: 25%;   
+form button {
+    width: 25%;
+    border-radius: 7px;   
+}
+form textarea {
+    border-radius: 7px;
+    padding: 5px;
 }
 #view-nav {
     display: flex;
@@ -61,14 +108,34 @@ form input[type=submit] {
     gap: 10px;
     margin-top: 20px;
     justify-content: center;
+    align-items: center;
+    font-size: 14pt;
+    font-weight: bold;
 }
 #view-nav .button {
-    width: 30px;
-    font-size: 12pt;
+    width: 40px;
+    height: 40px;
+    font-size: 14pt;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 #view-nav p {
     margin: 0;
+    color: black;
+}
+#generation-view {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
 }

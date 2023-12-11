@@ -26,3 +26,6 @@ totaltime,texttime,imagetime,request,length,model,imagegen
 31.3213369846344,31.300874948501587,0.009017705917358398,I want to learn about mushrooms,3413,model:gpt-3.5-turbo-0613,imagegen:False
 21.51126265525818,21.497137546539307,0.012666463851928711,i want to learn about sea horses,2914,model:gpt-3.5-turbo-0613,imagegen:False
 25.20082116127014,25.19307827949524,0.007742881774902344,I want to learn about apples,2943,model:gpt-3.5-turbo-0613,imagegen:False
+31.006004810333252,31.00104856491089,0.0029909610748291016,I want to learn about mushrooms,4536,model:gpt-3.5-turbo-0613,imagegen:False
+15.162531852722168,15.146924495697021,0.0076029300689697266,what is the fnaf lore about,3721,model:gpt-3.5-turbo-0613,imagegen:False
+15.61728048324585,15.609356880187988,0.005986213684082031,tell me about the character pou,3852,model:gpt-3.5-turbo-0613,imagegen:False

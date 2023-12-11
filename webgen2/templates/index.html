@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Website Generator</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web">
 </head>
 <body>
@@ -15,17 +15,17 @@
             <button type="submit" id="showButton">Submit</button>
             <div class="loader" id="hiddenDiv"></div>
         </div>
-        <a href="/lastgen?sheet=journal.css" class="lastgenbutton">See Last Generated Site</a>
     </form>
+    <h2 id="projects-list-title">Projects</h2>
+    <div id="projects-list">
+        {% for i in range(projects|length) %}
+            <div id="project-item"><a href="/lastgen?project={{i}}" class="projectbutton">Project {{i + 1}}</a><p>"{{projects[i]}}"</p></div>
+        {% endfor %}
+    </div>
     <script>
         // Get references to the button and the hidden div
         var showButton = document.getElementById("showButton");
         var hiddenDiv = document.getElementById("hiddenDiv");
-    
-        var urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has("q")) {
-            hiddenDiv.style.display = "block";
-        }
 
         // Add a click event listener to the button
         showButton.addEventListener("click", function() {

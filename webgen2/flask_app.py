@@ -105,7 +105,7 @@ def processHTML(html, current_view=view_number):
     html = html[:insertIdx+6+len(element)] + "\n<link rel='stylesheet' href='css/genstyle.css'>\n<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js'></script>\n<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>\n" + html[insertIdx+6+len(element):]
     
     insertIdx = html.find("<body>")
-    html = html[:insertIdx+6] + f"\n<a class='button home' href='/home'>Home</a>\n<div class='floating-menu'>\n<div id='stylesheetlist'>\n<a class='button' href='/lastgen?sheet=cerulean.css'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css'>United</a></div>\n<p>Last input: \"{'{{view_feedback}}'}\"</p>\n<form action='/lastgen'>\n<textarea rows='3' name='feedback' placeholder='enter feedback'></textarea>\n<input type='submit' value='Submit'>\n<input type='hidden' name='sheet' value='{'{{stylesheet}}'}'>\n<input type='hidden' name='view' value='{'{{view}}'}'>\n</form>\n<div id='view-nav'>\n<a class='button' href=\"/lastgen?sheet={'{{stylesheet}}'}&view={prevView}\">&lt;</a>\nRevision: #{current_view} (made from Revision #{'{{source_num}}'})\n<a class='button' href=\"/lastgen?sheet={'{{stylesheet}}'}&view={nextView}\">&gt;</a>\n</div>\n</div>\n" + html[insertIdx+6:]
+    html = html[:insertIdx+6] + f"\n<div class='floating-menu'>\n<div id='stylesheetlist'>\n<a class='button' href='/lastgen?sheet=cerulean.css&project={'{{project_num}}'}&view={'{{view}}'}'>Cerulean</a>\n<a class='button' href='/lastgen?sheet=cosmo.css&project={'{{project_num}}'}&view={'{{view}}'}'>Cosmo</a>\n<a class='button' href='/lastgen?sheet=darkly.css&project={'{{project_num}}'}&view={'{{view}}'}'>Darkly</a>\n<a class='button' href='/lastgen?sheet=journal.css&project={'{{project_num}}'}&view={'{{view}}'}'>Journal</a>\n<a class='button' href='/lastgen?sheet=lux.css&project={'{{project_num}}'}&view={'{{view}}'}'>Lux</a>\n<a class='button' href='/lastgen?sheet=quartz.css&project={'{{project_num}}'}&view={'{{view}}'}'>Quartz</a>\n<a class='button' href='/lastgen?sheet=united.css&project={'{{project_num}}'}&view={'{{view}}'}'>United</a></div>\n<hr>\n<form action='/lastgen' onsubmit='hidesubmit();'>\n<p>Last input: \"{'{{view_feedback}}'}\"</p>\n<textarea rows='3' name='feedback' placeholder='enter feedback'></textarea>\n<div class='submitbutton'>\n<button id='submitbutton' type='submit'>Submit</button><div class='loader' id='hiddenDiv'>\n</div>\n</div>\n<input type='hidden' name='sheet' value='{'{{stylesheet}}'}'>\n<input type='hidden' name='view' value='{'{{view}}'}'>\n<input type='hidden' name='project' value='{'{{project_num}}'}'>\n</form>\n<hr>\n<div class='menu-section'>\n<div id='view-nav'>\n<a class='button' href='/lastgen?sheet={'{{stylesheet}}'}&view={prevView}&project={'{{project_num}}'}'>&lt;</a>\n<div id='generation-view'>\n<p>Revision: #{current_view} (made from Revision #{'{{source_num}}'})</p>\n<p>Total Generations: {generations_count}</p>\n</div>\n<a class='button' href='/lastgen?sheet={'{{stylesheet}}'}&view={nextView}&project={'{{project_num}}'}'>&gt;</a>\n</div>\n<a class='button home' href='/home'>Home</a>\n</div>\n</div>\n<script>\nlet showButton = document.getElementById('submitbutton');\nlet hiddenDiv = document.getElementById('hiddenDiv');\nshowButton.onclick = function() {{hiddenDiv.style.display = 'block';}};\nfunction hidesubmit() {{let button = document.getElementById('submitbutton');button.disabled = true; }}</script>" + html[insertIdx+6:]
     return html
 
 @app.route('/home', methods=['GET'])
@@ -182,13 +182,25 @@ def home():
                 f.close()
             
             with open(os.path.join(project_path, "log.json"), "w") as f:
-                json.dump({str(view_number): lastQuery}, f)
+                json.dump({str(view_number): [lastQuery, 0]}, f)
                 f.close()
 
             stylesheet = "journal.css"
             if request.method == 'GET' and "sheet" in request.args: stylesheet=request.args["sheet"]
             return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}")
-    return send_from_directory(app.static_folder, path="index.html")
+    
+    projects = []
+    for i in range(projects_count):
+        path = os.path.join(app_root, f"generations{i}", "log.json")
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                project = json.load(f)
+                f.close()
+            projects.append(project["0"][0])
+        else:
+            projects.append("Not Found.")
+    
+    return render_template("index.html", projects=projects)
 
 @app.route('/generated/<path:filename>')
 def web_gen_assets(filename):
@@ -208,9 +220,18 @@ def lastgen():
     stylesheet = "journal.css"
     if request.method == 'GET':
         if "sheet" in request.args: stylesheet=request.args["sheet"]
+        if "project" in request.args: project_number = int(request.args["project"])
+        else: project_number = projects_count - 1
+        project_path = os.path.join(app_root, f"generations{project_number}")
+        generations_count = 0
+        if os.path.exists(project_path):
+            generations_count = len([entry for entry in os.listdir(project_path) if os.path.isfile(os.path.join(project_path, entry)) and entry.startswith("baseHTML")])
+        view_number = generations_count - 1 if generations_count > 0 else 0
+
         if "view" in request.args: view = int(request.args["view"])
         else: view = view_number
         if "feedback" in request.args:
+            if request.args["feedback"] == "": return redirect(f"/lastgen?sheet={stylesheet}&view={view}&project={project_number}")
             try:
                 with open(os.path.join(project_path, f"baseHTML{view}.html"), "r") as f:
                     html = f.read()
@@ -244,7 +265,7 @@ def lastgen():
                 json.dump(view_feedback, f)
                 f.close()
             
-            return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}")
+            return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}&project={project_number}")
         else:
             with open(os.path.join(project_path, f"baseHTML{view}.html"), "r") as f:
                 html = f.read()
@@ -263,7 +284,7 @@ def lastgen():
             if str(view) in log:
                 view_feedback, source_num = log[str(view)]
             f.close()
-    return render_template("view.html", stylesheet=stylesheet, view_feedback=view_feedback, view=view, source_num=source_num)
+    return render_template("view.html", stylesheet=stylesheet, view_feedback=view_feedback, view=view, source_num=source_num, project_num=project_number)
 
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True
