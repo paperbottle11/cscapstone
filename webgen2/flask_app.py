@@ -261,19 +261,26 @@ def lastgen():
                     f.close()
 
             newMsgs = [{"role": "assistant", "content": html},
-                       {'role': 'user', 'content': "The following feedback are changes that need to made to the code.  Add, remove, and change the code as needed.  The output should be valid json text.  The feedback is: " + request.args["feedback"]}
+                       {'role': 'user', 'content': "The following feedback are changes that need to made to the code.  Add, remove, and change the code as needed.  The output should be valid json text.  Use bootstrap CSS when needed.  The feedback is: " + request.args["feedback"]}
                     ]
             print("processing feedback:", request.args["feedback"] if "feedback" in request.args else "")
+            startTime = time.time()
             newhtml, image_names, image_prompts = generate(lastQuery, messages=newMsgs)
+            totalTimeElapsed = time.time() - startTime
+            
+            if newhtml == "failed":
+                print("Failed to generate HTML due to JSON error")
+                return redirect('/error')
+            
             view_number += 1
             generations_count += 1
             with open(os.path.join(project_path, f"baseHTML{view_number}.html"), "w") as f:
                 f.write(newhtml)
                 f.close()
             
-            newhtml = processHTML(newhtml)
+            outhtml = processHTML(newhtml)
             with open("templates/view.html", "wb") as f:
-                f.write(newhtml.encode())
+                f.write(outhtml.encode())
                 f.close()
 
             with open(os.path.join(project_path, "log.json"), "r") as f:
@@ -282,6 +289,10 @@ def lastgen():
             view_feedback[str(view_number)] = [request.args["feedback"], view]
             with open(os.path.join(project_path, "log.json"), "w") as f:
                 json.dump(view_feedback, f)
+                f.close()
+
+            with open("feedbackTimes.txt", "a") as f:
+                f.write(f"{totalTimeElapsed},{request.args['feedback']},{len(newhtml) - len(html)}\n")
                 f.close()
             
             return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}&project={project_number}")
