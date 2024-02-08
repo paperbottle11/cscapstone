@@ -30,12 +30,16 @@ def generateImage(prompt, debug=False):
         print("Debug mode is on, skipping image generation")
         return open("test.png", "rb").read()
     
-    response = openai.Image.create(
-        prompt=prompt,
-        n=1,
-        size="256x256",
-        response_format="b64_json",
-    )
+    try:
+        response = openai.Image.create(
+            prompt=prompt,
+            n=1,
+            size="256x256",
+            response_format="b64_json",
+        )
+    except Exception as e:
+        print(e)
+        return "failed"
 
     image_data = b64decode(response["data"][0]["b64_json"])
     return image_data
@@ -175,6 +179,14 @@ def home():
             debug = "imagegen" not in request.args
             for name, prompt in zip(image_names, image_prompts):
                 img = generateImage(prompt, debug=debug)
+                if img == "failed":
+                    print("Failed to generate Image")
+                    try:
+                        shutil.rmtree(project_path, ignore_errors=True)
+                    except Exception as e:
+                        print(f'Failed to delete directory: {e}')
+                    projects_count -= 1
+                    return redirect('/error')
                 with open(os.path.join(project_path, "images", name), "wb") as f:
                     f.write(img)
                     f.close()

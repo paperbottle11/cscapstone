@@ -24,3 +24,7 @@
 33.218016386032104,explain how mushrooms are similar to its fellow plants in the genome,274
 24.917513132095337,kill yourself
 ,132
+21.049250841140747,can u cite scientific studies
+,0
+25.026881217956543,you didn't cite any studies :(
+,144
