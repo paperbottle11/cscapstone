@@ -28,7 +28,7 @@ with open("../config.txt", "r") as f:
 def generateImage(prompt, debug=False):
     if debug:
         print("Debug mode is on, skipping image generation")
-        return open("test.png", "rb").read()
+        return open("placeholder.png", "rb").read()
     
     try:
         response = openai.Image.create(
@@ -70,9 +70,9 @@ def generate(userRequest, model="gpt-3.5-turbo-0613", messages=None):
         ],
         function_call={"name": "create_website"}
     )
-    with open("json.json", "w") as f:
-        f.write(response.choices[0]["message"]["function_call"]["arguments"])
-        f.close()
+    # with open("json.json", "w") as f:
+    #     f.write(response.choices[0]["message"]["function_call"]["arguments"])
+    #     f.close()
     try:
         output = json.loads(response.choices[0]["message"]["function_call"]["arguments"].strip().encode())
     except json.decoder.JSONDecodeError:
@@ -201,9 +201,9 @@ def home():
             totalTimeElapsed = time.time() - startTime
             print(totalTimeElapsed)
             
-            with open("time.txt", "a") as f:
-                f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},{userRequest},{len(html)},model:{model},imagegen:{not debug}\n")
-                f.close()
+            # with open("time.txt", "a") as f:
+            #     f.write(f"{totalTimeElapsed},{textTimeElapsed},{imageTimeElapsed},{userRequest},{len(html)},model:{model},imagegen:{not debug}\n")
+            #     f.close()
             
             with open(os.path.join(project_path, "log.json"), "w") as f:
                 json.dump({str(view_number): [lastQuery, 0]}, f)
@@ -276,6 +276,7 @@ def lastgen():
                        {'role': 'user', 'content': "The following feedback are changes that need to made to the code.  Add, remove, and change the code as needed.  The output should be valid json text.  Use bootstrap CSS when needed.  The feedback is: " + request.args["feedback"]}
                     ]
             print("processing feedback:", request.args["feedback"] if "feedback" in request.args else "")
+            
             startTime = time.time()
             newhtml, image_names, image_prompts = generate(lastQuery, messages=newMsgs)
             totalTimeElapsed = time.time() - startTime
@@ -303,9 +304,9 @@ def lastgen():
                 json.dump(view_feedback, f)
                 f.close()
 
-            with open("feedbackTimes.txt", "a") as f:
-                f.write(f"{totalTimeElapsed},{request.args['feedback']},{len(newhtml) - len(html)}\n")
-                f.close()
+            # with open("feedbackTimes.txt", "a") as f:
+            #     f.write(f"{totalTimeElapsed},{request.args['feedback']},{len(newhtml) - len(html)}\n")
+            #     f.close()
             
             return redirect(f"/lastgen?sheet={stylesheet}&view={view_number}&project={project_number}")
         else:

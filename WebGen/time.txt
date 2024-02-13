@@ -39,4 +39,3 @@ totaltime,texttime,imagetime,request,length,model,imagegen
 55.70756530761719,34.881561279296875,20.825005769729614,how do electric trains work,5000,model:gpt-3.5-turbo-0613,imagegen:True
 20.954643964767456,20.950368642807007,0.0,make an ultimate frisbee simulation,3417,model:gpt-3.5-turbo-0613,imagegen:False
 77.23751616477966,55.49724793434143,21.740268230438232,how do you play pickleball,6123,model:gpt-3.5-turbo-0613,imagegen:True
-3.1987411975860596,3.1760916709899902,0.016294479370117188,nipple,3298,model:gpt-3.5-turbo-0613,imagegen:False
