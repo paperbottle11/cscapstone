@@ -1,11 +1,5 @@
 # Capstone Logbook
 
-<h2>GitHub</h2>
-
-https://github.com/paperbottle11/cscapstone
-
-<img src="capstone-qrcode.svg" style="width: 25%;">
-
 <h2>Entries:</h2>
 <h3>9/25/23</h3>
 I added a loading icon that pops up when the model is generating.
