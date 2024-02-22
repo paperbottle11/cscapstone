@@ -39,3 +39,11 @@ There were some bugs in the CSS of the home page that I fixed.  I also added a p
 I created an error page to smoothen the user experience and allow them to return to the home page when an error ocurrs.  Without this error handling, the user would have to manually press the back button, and empty project directories would still be present.  When the server detects an error that ruins the project, it automatically deletes the directory and redirects the user to the error page.
 
 <img alt="diagram of program" src="errorpage.jpg" style="width: 75%;">
+
+<div style="page-break-after: always;"></div>
+
+<h1 align="center">GitHub Repo</h1>
+
+<p align="center">
+    <img alt="qr code to the github repository" src="capstone-github.png">
+</p>
